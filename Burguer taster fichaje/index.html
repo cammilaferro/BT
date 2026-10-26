@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burger Taster | Fichaje de Personal</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Librería para lectura de QR con cámara (html5-qrcode) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  
+  <!-- Google Fonts: Montserrat & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bt: {
+              red: '#C8102E',     // Rojo oficial
+              yellow: '#FFC200',  // Amarillo oficial
+              darkBg: '#121212',  // Fondo negro
+              card: '#1E1E22',    // Tarjetas en gris oscuro
+              border: '#2C2C30',  // Bordes sutiles
+              textLight: '#F4F4F5'// Texto blanco claro
+            }
+          },
+          fontFamily: {
+            title: ['Montserrat', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-bt-darkBg text-bt-textLight font-body min-h-screen flex flex-col justify-between p-4 sm:p-6 select-none">
+
+  <!-- Header con el Logo Oficial Global -->
+  <header class="w-full max-w-md mx-auto text-center pt-2 flex flex-col items-center">
+    <img 
+      src="https://i.ibb.co/2XFv715/logo.png" 
+      alt="Burger Taster" 
+      class="w-32 h-auto object-contain mb-2 drop-shadow-[0_4px_10px_rgba(255,194,0,0.2)]"
+      onerror="this.onerror=null; this.src='https://i.ibb.co/3sZq1qW/burger-taster-logo.png';"
+    >
+    <p class="text-xs font-bold text-bt-yellow tracking-widest uppercase">
+      Control de Asistencia
+    </p>
+  </header>
+
+  <!-- Tarjeta Principal de Fichaje -->
+  <main class="w-full max-w-md mx-auto my-auto py-4">
+    <div class="bg-bt-card rounded-3xl p-6 shadow-2xl border border-bt-border relative">
+      
+      <!-- Selector de Sucursal -->
+      <div class="mb-5 bg-bt-darkBg border border-bt-border rounded-2xl p-3">
+        <label class="block text-[10px] font-bold text-bt-yellow uppercase tracking-wider mb-1">
+          📍 Sucursal Actual
+        </label>
+        <select id="sucursal-selector" class="w-full bg-transparent text-sm font-title font-bold text-white focus:outline-none cursor-pointer">
+          <option value="hudson" class="bg-bt-card text-white">Hudson</option>
+          <option value="berazategui" class="bg-bt-card text-white">Berazategui - Mitre 498</option>
+          <option value="quilmes-centro" class="bg-bt-card text-white">Quilmes - Moreno 339</option>
+          <option value="quilmes-oeste" class="bg-bt-card text-white">Quilmes - Av. Calchaquí 3699</option>
+        </select>
+      </div>
+
+      <!-- Visor del Escáner QR Real -->
+      <div class="relative w-full aspect-square bg-black rounded-2xl border-2 border-bt-border flex flex-col items-center justify-center overflow-hidden mb-5 shadow-inner">
+        
+        <!-- Elemento donde la cámara se va a renderizar -->
+        <div id="reader" class="w-full h-full object-cover"></div>
+
+        <!-- Botón para Iniciar/Reintentar Cámara si está apagada -->
+        <div id="start-camera-overlay" class="absolute inset-0 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center z-10">
+          <p class="text-xs text-gray-300 font-medium mb-3">
+            Para fichar por QR, necesitás activar la cámara de tu celular.
+          </p>
+          <button 
+            onclick="iniciarEscanerQR()" 
+            class="bg-bt-yellow hover:bg-bt-yellow/90 text-black font-title font-bold px-5 py-2.5 rounded-xl transition active:scale-95 text-xs tracking-wider uppercase shadow-lg flex items-center gap-2"
+          >
+            📷 Escanear con Cámara
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mensaje de Resultado del Escaneo -->
+      <div id="qr-result" class="hidden mb-4 p-3 rounded-xl text-center text-xs font-bold"></div>
+
+      <!-- Opción Manual por Legajo / DNI -->
+      <div class="space-y-2">
+        <label class="block text-[11px] font-bold text-gray-400 text-center uppercase tracking-wider">
+          O ingresá tu DNI / Legajo
+        </label>
+        <div class="flex gap-2">
+          <input 
+            type="number" 
+            id="legajo-input"
+            placeholder="Ej: 42123456" 
+            class="w-full bg-bt-darkBg border border-bt-border rounded-xl px-4 py-3 text-white font-title font-bold placeholder-gray-600 focus:outline-none focus:border-bt-red text-center transition"
+          >
+          <button 
+            onclick="ficharManual()"
+            class="bg-bt-red hover:bg-bt-red/90 text-white font-title font-black px-6 rounded-xl transition active:scale-95 shadow-md uppercase tracking-wider text-sm"
+          >
+            Fichar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer con Créditos y Contacto Directo -->
+  <footer class="w-full max-w-md mx-auto text-center py-4 space-y-2">
+    <p class="text-xs text-gray-300 font-medium">
+      Desarrollado por <span class="text-bt-yellow font-bold">Camila Ferro</span>
+    </p>
+    <div>
+      <a 
+        href="mailto:camilaferroit@gmail.com?subject=Consulta%20sobre%20el%20sistema%20de%20fichaje" 
+        class="inline-flex items-center gap-1.5 bg-bt-card border border-bt-border hover:border-bt-yellow text-xs text-gray-300 hover:text-bt-yellow px-4 py-1.5 rounded-full transition shadow-sm font-semibold"
+      >
+        ✉️ Contactar a la desarrolladora
+      </a>
+    </div>
+  </footer>
+
+  <!-- Lógica JavaScript para la Cámara y el Escáner QR -->
+  <script>
+    let html5QrcodeScanner = null;
+
+    function iniciarEscanerQR() {
+      const overlay = document.getElementById('start-camera-overlay');
+      const resultDiv = document.getElementById('qr-result');
+
+      // Ocultar la capa del botón
+      if (overlay) overlay.style.display = 'none';
+
+      // Configuración del escáner
+      html5QrcodeScanner = new Html5Qrcode("reader");
+
+      const config = { 
+        fps: 10, 
+        qrbox: { width: 220, height: 220 } 
+      };
+
+      // Intentar abrir la cámara trasera ('environment')
+      html5QrcodeScanner.start(
+        { facingMode: "environment" }, 
+        config, 
+        onScanSuccess, 
+        onScanError
+      ).catch(err => {
+        console.error("Error al iniciar cámara: ", err);
+        alert("No se pudo acceder a la cámara. Por favor, asegurate de darle permisos de acceso en tu navegador.");
+        if (overlay) overlay.style.display = 'flex';
+      });
+    }
+
+    // Qué pasa cuando el QR se lee con éxito
+    function onScanSuccess(decodedText, decodedResult) {
+      // Detener la cámara tras detectar el código
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+          document.getElementById('start-camera-overlay').style.display = 'flex';
+        }).catch(err => console.error(err));
+      }
+
+      const sucursal = document.getElementById('sucursal-selector').value;
+      
+      // Mostrar mensaje temporal de éxito
+      const resultDiv = document.getElementById('qr-result');
+      resultDiv.className = "mb-4 p-3 rounded-xl text-center text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/40 block";
+      resultDiv.innerText = `¡QR Detectado! (${decodedText}) - Sucursal: ${sucursal.toUpperCase()}`;
+      
+      alert(`✅ Fichaje detectado correctamente por QR.\nCódigo: ${decodedText}\nSucursal: ${sucursal}`);
+    }
+
+    function onScanError(errorMessage) {
+      // Ignoramos errores continuos de búsqueda de frame para no saturar la pantalla
+    }
+
+    // Fichaje manual por DNI / Legajo
+    function ficharManual() {
+      const legajo = document.getElementById('legajo-input').value;
+      const sucursal = document.getElementById('sucursal-selector').value;
+
+      if (!legajo) {
+        alert("Por favor, ingresá un DNI o Legajo válido.");
+        return;
+      }
+
+      alert(`✅ Fichaje manual realizado con éxito.\nDNI/Legajo: ${legajo}\nSucursal: ${sucursal}`);
+      document.getElementById('legajo-input').value = '';
+    }
+  </script>
+
+</body>
+</html>
