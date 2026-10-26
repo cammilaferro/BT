@@ -58,35 +58,51 @@
   <main class="w-full max-w-md mx-auto my-auto py-4">
     <div class="bg-bt-card rounded-3xl p-6 shadow-2xl border border-bt-border relative">
       
-      <!-- Selector de Sucursal -->
-      <div class="mb-5 bg-bt-darkBg border border-bt-border rounded-2xl p-3">
-        <label class="block text-[10px] font-bold text-bt-yellow uppercase tracking-wider mb-1">
-          📍 Sucursal Actual
-        </label>
-        <select id="sucursal-selector" class="w-full bg-transparent text-sm font-title font-bold text-white focus:outline-none cursor-pointer">
-          <option value="hudson" class="bg-bt-card text-white">Hudson</option>
-          <option value="berazategui" class="bg-bt-card text-white">Berazategui - Mitre 498</option>
-          <option value="quilmes-centro" class="bg-bt-card text-white">Quilmes - Moreno 339</option>
-          <option value="quilmes-oeste" class="bg-bt-card text-white">Quilmes - Av. Calchaquí 3699</option>
-        </select>
+      <!-- Paso 1: Datos del Empleado -->
+      <div class="space-y-4 mb-5">
+        <!-- Selector de Sucursal -->
+        <div class="bg-bt-darkBg border border-bt-border rounded-2xl p-3">
+          <label class="block text-[10px] font-bold text-bt-yellow uppercase tracking-wider mb-1">
+            📍 1. Seleccioná tu Sucursal
+          </label>
+          <select id="sucursal-selector" class="w-full bg-transparent text-sm font-title font-bold text-white focus:outline-none cursor-pointer">
+            <option value="Hudson" class="bg-bt-card text-white">Hudson</option>
+            <option value="Berazategui - Mitre 498" class="bg-bt-card text-white">Berazategui - Mitre 498</option>
+            <option value="Quilmes - Moreno 339" class="bg-bt-card text-white">Quilmes - Moreno 339</option>
+            <option value="Quilmes - Av. Calchaquí 3699" class="bg-bt-card text-white">Quilmes - Av. Calchaquí 3699</option>
+          </select>
+        </div>
+
+        <!-- Ingreso de DNI obligatorio -->
+        <div class="bg-bt-darkBg border border-bt-border rounded-2xl p-3">
+          <label class="block text-[10px] font-bold text-bt-yellow uppercase tracking-wider mb-1">
+            👤 2. Ingresá tu DNI / Legajo
+          </label>
+          <input 
+            type="number" 
+            id="legajo-input"
+            placeholder="Ej: 42123456" 
+            class="w-full bg-transparent text-base font-title font-bold text-white placeholder-gray-600 focus:outline-none"
+          >
+        </div>
       </div>
 
-      <!-- Visor del Escáner QR Real -->
+      <!-- Paso 2: Escáner QR de Confirmación -->
       <div class="relative w-full aspect-square bg-black rounded-2xl border-2 border-bt-border flex flex-col items-center justify-center overflow-hidden mb-5 shadow-inner">
         
         <!-- Elemento donde la cámara se va a renderizar -->
         <div id="reader" class="w-full h-full object-cover"></div>
 
-        <!-- Botón para Iniciar/Reintentar Cámara si está apagada -->
-        <div id="start-camera-overlay" class="absolute inset-0 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center z-10">
+        <!-- Botón para Iniciar Escaneo -->
+        <div id="start-camera-overlay" class="absolute inset-0 bg-black/85 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center z-10">
           <p class="text-xs text-gray-300 font-medium mb-3">
-            Para fichar por QR, necesitás activar la cámara de tu celular.
+            Ingresá tu DNI arriba y luego presioná para registrar la entrada.
           </p>
           <button 
             onclick="iniciarEscanerQR()" 
-            class="bg-bt-yellow hover:bg-bt-yellow/90 text-black font-title font-bold px-5 py-2.5 rounded-xl transition active:scale-95 text-xs tracking-wider uppercase shadow-lg flex items-center gap-2"
+            class="bg-bt-yellow hover:bg-bt-yellow/90 text-black font-title font-bold px-5 py-3 rounded-xl transition active:scale-95 text-xs tracking-wider uppercase shadow-lg flex items-center gap-2"
           >
-            📷 Escanear con Cámara
+            📷 Escanear QR para Fichar
           </button>
         </div>
 
@@ -94,27 +110,6 @@
 
       <!-- Mensaje de Resultado del Escaneo -->
       <div id="qr-result" class="hidden mb-4 p-3 rounded-xl text-center text-xs font-bold"></div>
-
-      <!-- Opción Manual por Legajo / DNI -->
-      <div class="space-y-2">
-        <label class="block text-[11px] font-bold text-gray-400 text-center uppercase tracking-wider">
-          O ingresá tu DNI / Legajo
-        </label>
-        <div class="flex gap-2">
-          <input 
-            type="number" 
-            id="legajo-input"
-            placeholder="Ej: 42123456" 
-            class="w-full bg-bt-darkBg border border-bt-border rounded-xl px-4 py-3 text-white font-title font-bold placeholder-gray-600 focus:outline-none focus:border-bt-red text-center transition"
-          >
-          <button 
-            onclick="ficharManual()"
-            class="bg-bt-red hover:bg-bt-red/90 text-white font-title font-black px-6 rounded-xl transition active:scale-95 shadow-md uppercase tracking-wider text-sm"
-          >
-            Fichar
-          </button>
-        </div>
-      </div>
 
     </div>
   </main>
@@ -134,26 +129,29 @@
     </div>
   </footer>
 
-  <!-- Lógica JavaScript para la Cámara y el Escáner QR -->
+  <!-- Lógica JavaScript para Cámara y Notificaciones de Telegram -->
   <script>
     let html5QrcodeScanner = null;
 
-    function iniciarEscanerQR() {
-      const overlay = document.getElementById('start-camera-overlay');
-      const resultDiv = document.getElementById('qr-result');
+    // CREDENCIALES DE TELEGRAM CONFIGURADAS
+    const TELEGRAM_BOT_TOKEN = '8931602524:AAFpY3ZxFHDcuiNaPTOt_0oxcgpghQQahFs'; 
+    const TELEGRAM_CHAT_ID = '8610277375';
 
-      // Ocultar la capa del botón
+    function iniciarEscanerQR() {
+      const legajo = document.getElementById('legajo-input').value;
+
+      if (!legajo) {
+        alert("⚠️ Por favor, ingresá tu DNI o Legajo antes de escanear el código QR.");
+        return;
+      }
+
+      const overlay = document.getElementById('start-camera-overlay');
       if (overlay) overlay.style.display = 'none';
 
-      // Configuración del escáner
       html5QrcodeScanner = new Html5Qrcode("reader");
 
-      const config = { 
-        fps: 10, 
-        qrbox: { width: 220, height: 220 } 
-      };
+      const config = { fps: 10, qrbox: { width: 220, height: 220 } };
 
-      // Intentar abrir la cámara trasera ('environment')
       html5QrcodeScanner.start(
         { facingMode: "environment" }, 
         config, 
@@ -161,46 +159,64 @@
         onScanError
       ).catch(err => {
         console.error("Error al iniciar cámara: ", err);
-        alert("No se pudo acceder a la cámara. Por favor, asegurate de darle permisos de acceso en tu navegador.");
+        alert("No se pudo acceder a la cámara. Verificá los permisos de tu navegador.");
         if (overlay) overlay.style.display = 'flex';
       });
     }
 
-    // Qué pasa cuando el QR se lee con éxito
     function onScanSuccess(decodedText, decodedResult) {
-      // Detener la cámara tras detectar el código
       if (html5QrcodeScanner) {
         html5QrcodeScanner.stop().then(() => {
           document.getElementById('start-camera-overlay').style.display = 'flex';
         }).catch(err => console.error(err));
       }
 
-      const sucursal = document.getElementById('sucursal-selector').value;
-      
-      // Mostrar mensaje temporal de éxito
-      const resultDiv = document.getElementById('qr-result');
-      resultDiv.className = "mb-4 p-3 rounded-xl text-center text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/40 block";
-      resultDiv.innerText = `¡QR Detectado! (${decodedText}) - Sucursal: ${sucursal.toUpperCase()}`;
-      
-      alert(`✅ Fichaje detectado correctamente por QR.\nCódigo: ${decodedText}\nSucursal: ${sucursal}`);
-    }
-
-    function onScanError(errorMessage) {
-      // Ignoramos errores continuos de búsqueda de frame para no saturar la pantalla
-    }
-
-    // Fichaje manual por DNI / Legajo
-    function ficharManual() {
       const legajo = document.getElementById('legajo-input').value;
       const sucursal = document.getElementById('sucursal-selector').value;
+      const ahora = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-      if (!legajo) {
-        alert("Por favor, ingresá un DNI o Legajo válido.");
-        return;
-      }
+      // Mensaje en pantalla
+      const resultDiv = document.getElementById('qr-result');
+      resultDiv.className = "mb-4 p-3 rounded-xl text-center text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/40 block";
+      resultDiv.innerText = `✅ ¡Fichaje Exitoso! DNI: ${legajo} en ${sucursal}`;
 
-      alert(`✅ Fichaje manual realizado con éxito.\nDNI/Legajo: ${legajo}\nSucursal: ${sucursal}`);
+      // Enviar notificación a Telegram
+      enviarNotificacionTelegram(legajo, sucursal, ahora, decodedText);
+
+      // Limpiar DNI para el próximo fichaje
       document.getElementById('legajo-input').value = '';
+    }
+
+    function onScanError(errorMessage) {}
+
+    // Función para enviar mensaje a Telegram
+    function enviarNotificacionTelegram(dni, sucursal, fechaHora, qrData) {
+      const mensaje = `⏱ *NUEVO FICHAJE - BURGER TASTER*\n\n` +
+                      `👤 *DNI/Legajo:* \`${dni}\`\n` +
+                      `📍 *Sucursal:* ${sucursal}\n` +
+                      `📅 *Fecha y Hora:* ${fechaHora}\n` +
+                      `🔍 *Validación QR:* ${qrData}`;
+
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: mensaje,
+          parse_mode: 'Markdown'
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          alert("✅ Fichaje enviado a Telegram correctamente.");
+        } else {
+          console.error("Error Telegram:", data);
+        }
+      })
+      .catch(err => console.error("Error al notificar:", err));
     }
   </script>
 
