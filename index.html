@@ -129,13 +129,13 @@
     </div>
   </footer>
 
-  <!-- Lógica JavaScript para Cámara y Notificaciones de Telegram -->
+  <!-- Lógica JavaScript para Cámara y Notificaciones al Grupo de Telegram -->
   <script>
     let html5QrcodeScanner = null;
 
-    // CREDENCIALES DE TELEGRAM DEL JEFE CONFIGURADAS
+    // CREDENCIALES DEL GRUPO DE TELEGRAM CONFIGURADAS
     const TELEGRAM_BOT_TOKEN = '9064976341:AAHpVSEN8JYU5Vc41tB5Fg8yMKpQK7_T75w'; 
-    const TELEGRAM_CHAT_ID = '5203765841';
+    const TELEGRAM_CHAT_ID = '-5455728750';
 
     function iniciarEscanerQR() {
       const nombreEmpleado = document.getElementById('nombre-input').value.trim();
@@ -180,7 +180,7 @@
       resultDiv.className = "mb-4 p-3 rounded-xl text-center text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/40 block";
       resultDiv.innerText = `✅ ¡Fichaje Exitoso, ${nombreEmpleado}! (${sucursal})`;
 
-      // Enviar notificación a Telegram del jefe
+      // Enviar notificación al Grupo de Telegram
       enviarNotificacionTelegram(nombreEmpleado, sucursal, ahora, decodedText);
 
       // Limpiar campo de nombre para el próximo fichaje
@@ -189,7 +189,7 @@
 
     function onScanError(errorMessage) {}
 
-    // Función para enviar mensaje a Telegram
+    // Función para enviar mensaje al grupo de Telegram
     function enviarNotificacionTelegram(nombre, sucursal, fechaHora, qrData) {
       const mensaje = `⏱ *NUEVO FICHAJE - BURGER TASTER*\n\n` +
                       `👤 *Empleado:* *${nombre}*\n` +
@@ -211,7 +211,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
-          alert("✅ Fichaje enviado a Telegram correctamente.");
+          alert("✅ Fichaje enviado al grupo de Telegram correctamente.");
         } else {
           console.error("Error Telegram:", data);
         }
