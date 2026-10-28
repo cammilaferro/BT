@@ -134,8 +134,9 @@
     let html5QrcodeScanner = null;
 
     // CREDENCIALES DE TELEGRAM CONFIGURADAS
-    const TELEGRAM_BOT_TOKEN = '8931602524:AAFpY3ZxFHDcuiNaPTOt_0oxcgpghQQahFs'; 
-    const TELEGRAM_CHAT_ID = '8610277375';
+    const TELEGRAM_BOT_TOKEN = '9064976341:AAHpVSEN8JYU5Vc41tB5Fg8yMKpQK7_T75w'; 
+    const TELEGRAM_CHAT_ID = '5203765841
+';
 
     function iniciarEscanerQR() {
       const nombreEmpleado = document.getElementById('nombre-input').value.trim();
@@ -192,13 +193,13 @@
     // Función para enviar mensaje a Telegram
     function enviarNotificacionTelegram(nombre, sucursal, fechaHora, qrData) {
       const mensaje = `⏱ *NUEVO FICHAJE - BURGER TASTER*\n\n` +
-                      `👤 *Empleado:* *${nombre}*\n` +
+                      `👤 *Empleado/a:* *${nombre}*\n` +
                       `📍 *Sucursal:* ${sucursal}\n` +
                       `📅 *Fecha y Hora:* ${fechaHora}\n` +
                       `🔍 *Validación QR:* ${qrData}`;
 
       const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
+ 
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
