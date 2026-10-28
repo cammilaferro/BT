@@ -192,7 +192,7 @@
     // Función para enviar mensaje al grupo de Telegram
     function enviarNotificacionTelegram(nombre, sucursal, fechaHora, qrData) {
       const mensaje = `⏱ *NUEVO FICHAJE - BURGER TASTER*\n\n` +
-                      `👤 *Empleado:* *${nombre}*\n` +
+                      `👤 *Empleado/a:* *${nombre}*\n` +
                       `📍 *Sucursal:* ${sucursal}\n` +
                       `📅 *Fecha y Hora:* ${fechaHora}\n` +
                       `🔍 *Validación QR:* ${qrData}`;
@@ -211,12 +211,13 @@
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
-          alert("✅ Fichaje enviado al grupo de Telegram correctamente.");
+          console.log("Fichaje enviado con éxito a Telegram.");
         } else {
           console.error("Error Telegram:", data);
+          alert("⚠️ El fichaje se registró localmente, pero Telegram rechazó el envío. Revisá los permisos del bot.");
         }
       })
-      .catch(err => console.error("Error al notificar:", err));
+      .catch(err => console.error("Error de red al notificar:", err));
     }
   </script>
 
